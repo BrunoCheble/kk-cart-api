@@ -4,4 +4,6 @@ export class CreateCartProductBody {
   @IsNotEmpty()
   productId: number;
   shoppingCartId?: number;
+  @IsNotEmpty()
+  userId: number;
 }

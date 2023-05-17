@@ -5,4 +5,6 @@ export class RemoveCartProductBody {
   productId: number;
   @IsNotEmpty()
   shoppingCartId: number;
+  @IsNotEmpty()
+  userId: number;
 }

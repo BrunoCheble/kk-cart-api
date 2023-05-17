@@ -36,6 +36,7 @@ describe('Carts - /carts (e2e)', () => {
   it('Get a cart [GET /:id]', async () => {
     const { body } = await request(app.getHttpServer())
       .post('/carts/add-to-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
       })
@@ -45,6 +46,7 @@ describe('Carts - /carts (e2e)', () => {
 
     return request(app.getHttpServer())
       .get(`/carts/${shoppingCartId}`)
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .expect(200)
       .then(({ body }) => {
         expect(body).toHaveProperty('shoppingCartId');
@@ -58,6 +60,7 @@ describe('Carts - /carts (e2e)', () => {
   it('Add a product to a new cart [POST /to-add-cart]', () => {
     return request(app.getHttpServer())
       .post('/carts/add-to-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
       })
@@ -71,6 +74,7 @@ describe('Carts - /carts (e2e)', () => {
   it('Add a product to an existing cart [POST /to-add-cart]', async () => {
     const { body } = await request(app.getHttpServer())
       .post('/carts/add-to-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
       })
@@ -80,6 +84,7 @@ describe('Carts - /carts (e2e)', () => {
 
     return request(app.getHttpServer())
       .post('/carts/add-to-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
         shoppingCartId,
@@ -95,6 +100,7 @@ describe('Carts - /carts (e2e)', () => {
   it('Remove a product from a cart [PATCH /remove-from-cart]', async () => {
     const { body } = await request(app.getHttpServer())
       .post('/carts/add-to-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
       })
@@ -104,6 +110,7 @@ describe('Carts - /carts (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/carts/add-to-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
         shoppingCartId,
@@ -112,6 +119,7 @@ describe('Carts - /carts (e2e)', () => {
 
     return request(app.getHttpServer())
       .patch('/carts/remove-from-cart')
+      .set('Authorization', `Bearer ${process.env.TOKEN}`)
       .send({
         productId,
         shoppingCartId,

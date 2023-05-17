@@ -12,11 +12,11 @@ import { UpdateCartItem } from './dtos/update-cartitem';
 import { CreateNewCart } from './dtos/create-newcart';
 import { SaveCart } from './dtos/savecart';
 import { RemoveCartProductBody } from './dtos/remove-cartproduct';
+import { FindOneCart } from './dtos/findone-cart';
 
 @Injectable()
 export class CartsService {
   private readonly logger = new Logger(CartsService.name);
-  private readonly userId = 1;
   constructor(
     @InjectRepository(Cart)
     private readonly cartsRepository: Repository<Cart>,
@@ -27,18 +27,16 @@ export class CartsService {
     await this.cartsRepository.delete(shoppingCartId);
   }
 
-  findOne(shoppingCartId: number): Promise<Cart> {
-    return this.cartsRepository.findOneBy({
-      shoppingCartId,
-      userId: this.userId,
-    });
+  findOne(data: FindOneCart): Promise<Cart> {
+    return this.cartsRepository.findOneBy(data);
   }
 
   async removeCartProduct({
     shoppingCartId,
     productId,
+    userId,
   }: RemoveCartProductBody): Promise<Cart | void> {
-    const cart = await this.findOne(shoppingCartId);
+    const cart = await this.findOne({ shoppingCartId, userId });
 
     if (!cart) {
       throw new HttpException('Cart not found!', 400);
@@ -61,11 +59,12 @@ export class CartsService {
   async addToCart({
     shoppingCartId,
     productId,
+    userId,
   }: CreateCartProductBody): Promise<Cart> {
     const product = await this.findProduct(productId);
     const cart = await this.findOrCreateNewOne({
       shoppingCartId,
-      userId: this.userId,
+      userId,
     });
 
     const products = this.updateCartItems({
