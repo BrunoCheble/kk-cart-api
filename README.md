@@ -3,6 +3,7 @@
 ### Notations
 
 - The database settings and server port  are inside the file **.env**
+- Don't forget to update the **URL_PRODUCT_API** to call the Product API
 - There are test e2e (Don't forget to run the product-api when testing the cart-api)
 - The development is using Nestjs / TypeORM
 
