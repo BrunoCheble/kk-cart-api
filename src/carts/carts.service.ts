@@ -3,10 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from './cart.entity';
 import { HttpException, Injectable, Logger } from '@nestjs/common';
-import { catchError, firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
 import { CreateCartProductBody } from './dtos/create-cartproduct';
-import { Product } from './interfaces/product';
 import { CartItem } from './interfaces/cartitem';
 import { UpdateCartItem } from './dtos/update-cartitem';
 import { CreateNewCart } from './dtos/create-newcart';
@@ -33,7 +30,7 @@ export class CartsService {
 
   async removeCartProduct({
     shoppingCartId,
-    productId,
+    product,
     userId,
   }: RemoveCartProductBody): Promise<Cart | void> {
     const cart = await this.findOne({ shoppingCartId, userId });
@@ -42,12 +39,13 @@ export class CartsService {
       throw new HttpException('Cart not found!', 400);
     }
 
-    const product = await this.findProduct(productId);
     const products = this.updateCartItems({
       cartItems: cart.products,
       product,
       removeItem: true,
-    }).filter((item) => !(item.productId === productId && item.quantity === 0));
+    }).filter(
+      (item) => !(item.productId === product.productId && item.quantity === 0),
+    );
 
     if (products.length > 0) {
       return this.saveCart({ cart, products });
@@ -58,10 +56,9 @@ export class CartsService {
 
   async addToCart({
     shoppingCartId,
-    productId,
+    product,
     userId,
   }: CreateCartProductBody): Promise<Cart> {
-    const product = await this.findProduct(productId);
     const cart = await this.findOrCreateNewOne({
       shoppingCartId,
       userId,
@@ -72,30 +69,15 @@ export class CartsService {
       product,
     });
 
-    if (!products.some((item) => item.productId === productId)) {
-      products.push({ productId, quantity: 1, price: product.price });
+    if (!products.some((item) => item.productId === product.productId)) {
+      products.push({
+        productId: product.productId,
+        quantity: 1,
+        price: product.price,
+      });
     }
 
     return this.saveCart({ cart, products });
-  }
-
-  private async findProduct(productId: number): Promise<Product> {
-    const { data: product } = await firstValueFrom(
-      this.httpService
-        .get<Product>(`${process.env.URL_PRODUCT_API}/products/${productId}`)
-        .pipe(
-          catchError((error: AxiosError) => {
-            this.logger.error(error.response.data);
-            throw 'An error happened!';
-          }),
-        ),
-    );
-
-    if (!product) {
-      throw new HttpException('Product not found!', 400);
-    }
-
-    return product;
   }
 
   private async findOrCreateNewOne({
