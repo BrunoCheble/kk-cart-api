@@ -1,9 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
-import { Product } from '../interfaces/product';
 
 export class RemoveCartProductBody {
   @IsNotEmpty()
-  product: Product;
+  productId: number;
   @IsNotEmpty()
   shoppingCartId: number;
   @IsNotEmpty()
